@@ -2,10 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <unistd.h>
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 
 #include "../include/plugz.h"
 #include "../include/serv_stdio_layer.h"
+#include "../include/thpool.h"
 
 #define BUF_SZE 2048
 #define HEADER_LEN 4
@@ -20,7 +27,7 @@ void *array_concat(const void *a, size_t an,
     return p;
 }
 
-int sendall(P_INT s, P_INT *buf, P_INT *len, P_INT prependHeader) {
+int sendall(P_INT s, P_STRING buf, P_INT *len, P_INT prependHeader) {
 
     char *data;
 
@@ -45,13 +52,13 @@ int sendall(P_INT s, P_INT *buf, P_INT *len, P_INT prependHeader) {
     P_INT n = 0;
 
     while (total < *len) {
-        
+
         n = send(s, data + total, bytesleft, 0);
-        
+
         if (n == -1) {
             break;
         }
-        
+
         total += n;
         bytesleft -= n;
     }
@@ -105,21 +112,21 @@ int assemble_stdio_data(int fd, char **data) {
             }
 
             byte_cnt += recv_cnt;
-        
+
         } else {
-        
+
             free(buf);
             break;
-        
+
         }
 
     } while (header_bytes_read < HEADER_LEN || byte_cnt < (msg_size + HEADER_LEN));
 
     if (byte_cnt < HEADER_LEN) {
-        
+
         *data = malloc(0);
         return 0;
-    
+
     }
 
     byte_cnt -= HEADER_LEN;
@@ -129,7 +136,7 @@ int assemble_stdio_data(int fd, char **data) {
     struct sock_data *next;
 
     for (curr = head; curr != NULL; curr = next) {
-    
+
         next = curr->next;
 
         if (curr->start_i < curr->len) {
@@ -141,8 +148,65 @@ int assemble_stdio_data(int fd, char **data) {
 
         free(curr->buffer);
         free(curr);
-    
+
     }
 
     return byte_cnt;
+}
+
+void std_sock_worker(P_INT *fd) {
+    
+    /**
+     * Just close the FD for now - till I can figure out the DB stuff...
+     */
+    close(*fd);
+
+}
+
+void *std_sock_listen() {
+
+    struct sockaddr_storage their_addr;
+    socklen_t addr_size;
+    struct addrinfo hints;
+    struct addrinfo *res;
+    P_INT sockfd;
+
+    // first, load up address structs with getaddrinfo():
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC; // use IPv4 or IPv6, whichever
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE; // fill in my IP for me
+
+    getaddrinfo(NULL, STD_PORT, &hints, &res);
+
+    // make a socket, bind it, and listen on it:
+
+    sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    bind(sockfd, res->ai_addr, res->ai_addrlen);
+
+    thpool_t* threadpool;
+    threadpool = thpool_init(STD_WORK_QUEUE_SIZE);
+
+    while (1) {
+
+        addr_size = sizeof their_addr;
+
+        //Block...
+        P_INT new_fd = accept(sockfd, (struct sockaddr *) &their_addr, &addr_size);
+
+        /**
+         * Add a fd to the work queue - worker needs to handle it... 
+         */
+        thpool_add_work(threadpool, (void*) std_sock_worker, (void*) &new_fd);
+
+    }
+
+}
+
+void serv_init_stdio(void) {
+
+    //Listen for client connections...
+    std_sock_listen();
+
 }

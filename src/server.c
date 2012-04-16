@@ -10,6 +10,11 @@
 
 int s_interrupted = 0;
  
+/**
+ * I'll add some better handling later...
+ * 
+ * @param signal_value
+ */
 void s_signal_handler(P_INT signal_value) {
     s_interrupted = 1;
 }
