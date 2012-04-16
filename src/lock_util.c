@@ -1,7 +1,4 @@
 
-#include "../include/plugz.h"
-#include "../include/lock_util.h"
-
 #include <fcntl.h>
 #include <stdio.h>
 #include <pwd.h>
@@ -10,6 +7,15 @@
 #include <string.h>
 #include <errno.h>
 
+/**
+ *File and stat stuff... 
+ */
+#include <sys/stat.h>
+#include <limits.h>
+#include <unistd.h>
+
+#include "../include/plugz.h"
+#include "../include/lock_util.h"
 
 pid_t get_locking_pid() {
 

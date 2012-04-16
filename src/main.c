@@ -4,16 +4,24 @@
  *
  * Created on 31 March 2012, 12:16 PM
  */
-
-#include "../include/plugz.h"
-#include "../include/server.h"
-#include "../include/lock_util.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <argtable2.h>
+
+/**
+ *File and stat stuff... 
+ */
+#include <sys/stat.h>
+#include <limits.h>
+#include <fcntl.h>
+
+#include "../include/server.h"
+#include "../include/plugz.h"
+#include "../include/lock_util.h"
+
+extern int s_interrupted;
 
 static void register_module(const P_CHAR * code, const P_CHAR * ipc) {
 

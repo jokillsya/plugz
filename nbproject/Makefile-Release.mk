@@ -34,7 +34,10 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/src/serv_zmq_layer.o \
 	${OBJECTDIR}/src/main.o \
+	${OBJECTDIR}/src/thpool.o \
+	${OBJECTDIR}/src/serv_stdio_layer.o \
 	${OBJECTDIR}/src/lock_util.o \
 	${OBJECTDIR}/src/server.o
 
@@ -63,10 +66,25 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/plugz: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -lzmq -largtable2 -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/plugz ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
+${OBJECTDIR}/src/serv_zmq_layer.o: src/serv_zmq_layer.c 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} $@.d
+	$(COMPILE.c) -Wall -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/serv_zmq_layer.o src/serv_zmq_layer.c
+
 ${OBJECTDIR}/src/main.o: src/main.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
 	$(COMPILE.c) -Wall -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/main.o src/main.c
+
+${OBJECTDIR}/src/thpool.o: src/thpool.c 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} $@.d
+	$(COMPILE.c) -Wall -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/thpool.o src/thpool.c
+
+${OBJECTDIR}/src/serv_stdio_layer.o: src/serv_stdio_layer.c 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} $@.d
+	$(COMPILE.c) -Wall -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/serv_stdio_layer.o src/serv_stdio_layer.c
 
 ${OBJECTDIR}/src/lock_util.o: src/lock_util.c 
 	${MKDIR} -p ${OBJECTDIR}/src

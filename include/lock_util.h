@@ -8,9 +8,6 @@
 #ifndef LOCK_UTIL_H
 #define	LOCK_UTIL_H
 
-#include "plugz.h"
-#include <fcntl.h>
-
 #define P_LCK_FLE "lock"
 
 pid_t get_locking_pid();

@@ -17,12 +17,6 @@
 #define TRUE    (char)1
 #define FALSE   (char)0
 
-/**
- *File and stat stuff... 
- */
-#include <sys/stat.h>
-#include <limits.h>
-
 #define EXISTS(path, statstruct)        (stat(path, &statstruct) == 0)
 #define MKDIR(dirpath, mode)            (!(mkdir(dirpath, mode) == -1))
 #define MKFLE(filepath, mode)           (!(creat(filepath, mode) == -1))

@@ -1,5 +1,23 @@
-#include "../include/plugz.h"
+#include <pthread.h>
 #include <zmq.h>
+
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <sys/time.h>
+#include <time.h>
+#include <unistd.h>
+#include <assert.h>
+#include <signal.h>
+
+#include "../include/serv_zmq_layer.h"
+#include "../include/server.h"
+#include "../include/plugz.h"
+#include "../include/zhelpers.h"
+
+extern int s_interrupted;
 
 static void * worker_routine(void *context) {
     // Socket to talk to dispatcher
@@ -30,7 +48,7 @@ static void * worker_routine(void *context) {
 
 }
 
-void init_zmq() {
+void serv_init_zmq() {
 
     void *context = zmq_init(1);
 

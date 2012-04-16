@@ -8,21 +8,6 @@
 #ifndef __ZHELPERS_H_INCLUDED__
 #define __ZHELPERS_H_INCLUDED__
 
-//  Include a bunch of headers that we will need in the examples
-
-#include <zmq.h>
-
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <sys/time.h>
-#include <time.h>
-#include <unistd.h>
-#include <assert.h>
-#include <signal.h>
-
 //  Version checking, and patch up missing constants to match 2.1
 #if ZMQ_VERSION_MAJOR == 2
 #   if ZMQ_VERSION_MINOR == 0

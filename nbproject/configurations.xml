@@ -6,7 +6,10 @@
                    projectFiles="true">
       <itemPath>include/lock_util.h</itemPath>
       <itemPath>include/plugz.h</itemPath>
+      <itemPath>include/serv_stdio_layer.h</itemPath>
+      <itemPath>include/serv_zmq_layer.h</itemPath>
       <itemPath>include/server.h</itemPath>
+      <itemPath>include/thpool.h</itemPath>
       <itemPath>include/zhelpers.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -18,7 +21,10 @@
                    projectFiles="true">
       <itemPath>src/lock_util.c</itemPath>
       <itemPath>src/main.c</itemPath>
+      <itemPath>src/serv_stdio_layer.c</itemPath>
+      <itemPath>src/serv_zmq_layer.c</itemPath>
       <itemPath>src/server.c</itemPath>
+      <itemPath>src/thpool.c</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
