@@ -1,0 +1,6 @@
+*.o
+*.d
+dist/
+build/
+dist/**/*
+build/**/*
