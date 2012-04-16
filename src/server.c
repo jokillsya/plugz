@@ -7,6 +7,8 @@
 #include "../include/server.h"
 #include "../include/plugz.h"
 #include "../include/lock_util.h"
+
+int s_interrupted = 0;
  
 void s_signal_handler(P_INT signal_value) {
     s_interrupted = 1;

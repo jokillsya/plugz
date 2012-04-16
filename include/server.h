@@ -8,8 +8,6 @@
 #ifndef SERVER_H
 #define	SERVER_H
 
-int s_interrupted = 0;
-
 void s_catch_signals(void);
 
 void start_server();

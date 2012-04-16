@@ -17,11 +17,10 @@
 #include <limits.h>
 #include <fcntl.h>
 
+#include "../include/serv_zmq_layer.h"
 #include "../include/server.h"
 #include "../include/plugz.h"
 #include "../include/lock_util.h"
-
-extern int s_interrupted;
 
 static void register_module(const P_CHAR * code, const P_CHAR * ipc) {
 
