@@ -204,9 +204,11 @@ void *std_sock_listen() {
 
 }
 
-void serv_init_stdio(void) {
+void *serv_init_stdio(void) {
 
     //Listen for client connections...
     std_sock_listen();
-
+    
+    //Never returns!
+    return EXIT_SUCCESS;
 }

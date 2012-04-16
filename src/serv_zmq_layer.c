@@ -48,7 +48,7 @@ static void * worker_routine(void *context) {
 
 }
 
-void serv_init_zmq() {
+void *serv_init_zmq(void) {
 
     void *context = zmq_init(1);
 
@@ -78,5 +78,8 @@ void serv_init_zmq() {
     zmq_close(clients);
     zmq_close(workers);
     zmq_term(context);
+    
+    //Never happens!
+    return EXIT_SUCCESS;
 
 }
