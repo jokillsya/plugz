@@ -25,7 +25,7 @@ pid_t get_locking_pid() {
     snprintf(dirpath, PATH_MAX, "%s/%s", "/etc", P_APP_DIR);
     snprintf(filepath, PATH_MAX, "%s/%s", dirpath, P_LCK_FLE);
 
-    int fd;
+    P_INT fd;
     struct flock lock;
 
     lock.l_type = F_WRLCK;
