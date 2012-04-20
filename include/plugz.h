@@ -42,5 +42,15 @@
 
 #define P_APP_DIR       "plugz"
 
+/**
+ * Bit Utility macros...
+ */
+
+#define I_B_CALC(type) (sizeof(type) * CHAR_BIT - 1)
+#define B2_POW(x) ((x == 0) ? 1 : 2 << (x - 1))
+#define MIN(x, y) (y + ((x - y) & ((x - y) >> I_B_CALC(x))))
+#define MAX(x, y) (x - ((x - y) & ((x - y) >> I_B_CALC(x))))
+#define BIT_EXTR(bl_1, bl_2, d) ((d & (MAX(B2_POW(bl_1), B2_POW(bl_2)) - MIN(B2_POW(bl_1), B2_POW(bl_2))) >> bl_1))
+
 #endif	/* PLUGZ_H */
 
