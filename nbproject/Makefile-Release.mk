@@ -38,6 +38,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/src/main.o \
 	${OBJECTDIR}/src/thpool.o \
 	${OBJECTDIR}/src/serv_stdio_layer.o \
+	${OBJECTDIR}/src/plugz_db.o \
 	${OBJECTDIR}/src/lock_util.o \
 	${OBJECTDIR}/src/server.o
 
@@ -85,6 +86,11 @@ ${OBJECTDIR}/src/serv_stdio_layer.o: src/serv_stdio_layer.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
 	$(COMPILE.c) -Wall -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/serv_stdio_layer.o src/serv_stdio_layer.c
+
+${OBJECTDIR}/src/plugz_db.o: src/plugz_db.c 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} $@.d
+	$(COMPILE.c) -Wall -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/plugz_db.o src/plugz_db.c
 
 ${OBJECTDIR}/src/lock_util.o: src/lock_util.c 
 	${MKDIR} -p ${OBJECTDIR}/src

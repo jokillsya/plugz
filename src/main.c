@@ -109,6 +109,34 @@ static void start(P_INT s, P_INT k, P_INT r, P_STRING_C* strings, P_INT nstrings
     printf("\n");
 }
 
+void int2binary(unsigned int n, char *buffer, unsigned int buffer_size) {
+
+    unsigned int i = (buffer_size - 1);
+
+    buffer[i] = '\0';
+
+
+
+    while (i > 0) {
+
+        if (n & 0x01) {
+
+            buffer[--i] = '1';
+
+        } else {
+
+            buffer[--i] = '0';
+
+        }
+
+
+
+        n >>= 1;
+
+    }
+
+}
+
 int main(int argc, char **argv) {
 
     struct arg_lit *plugz_start_opt = arg_lit0("s", "start", "Start the plugz server if it isn't already started.");

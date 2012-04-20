@@ -32,6 +32,7 @@
 #define P_STRING_C      const P_STRING
 #define P_INT           int
 #define P_LONG          long
+#define P_LLONG         long long
 #define P_BOOL          char
 #define TRUE            (char)1
 #define FALSE           (char)0
@@ -43,9 +44,10 @@
 #define P_APP_DIR       "plugz"
 
 /**
- * Bit Utility macros...
+ * Bit Utility macros... And so it begins...
+ * 
+ * The devil is in the details - but we'll just pretend he's asleep for now...
  */
-
 #define I_B_CALC(type) (sizeof(type) * CHAR_BIT - 1)
 #define B2_POW(x) ((x == 0) ? 1 : 2 << (x - 1))
 #define MIN(x, y) (y + ((x - y) & ((x - y) >> I_B_CALC(x))))

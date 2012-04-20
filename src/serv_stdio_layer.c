@@ -21,6 +21,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <limits.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -33,7 +34,7 @@
 #include "../include/thpool.h"
 
 #define BUF_SZE 2048
-#define HEADER_LEN 4
+//#define HEADER_LEN 4 ->> Don't need this due to new message format...
 #define ARRAY_CONCAT(TYPE, A, An, B, Bn) \
   (TYPE *)array_concat((const void *)(A), (An), (const void *)(B), (Bn), sizeof(TYPE));
 
@@ -45,13 +46,13 @@ void *array_concat(const void *a, size_t an,
     return p;
 }
 
-int sendall(P_INT s, P_STRING buf, P_INT *len, P_INT prependHeader) {
+int sendall(P_INT s, P_STRING buf, P_INT *len, P_INT prependHeader, P_INT hd_len) {
 
     char *data;
 
     if (prependHeader) {
 
-        P_CHAR size_buf[HEADER_LEN];
+        P_CHAR size_buf[hd_len];
         size_buf[0] = (char) (*len);
         size_buf[1] = (char) (*len >> 8);
         size_buf[2] = (char) (*len >> 16);
@@ -88,91 +89,116 @@ int sendall(P_INT s, P_STRING buf, P_INT *len, P_INT prependHeader) {
     return n == -1 ? -1 : 0; // return -1 on failure, 0 on success
 }
 
-int assemble_stdio_data(int fd, char **data) {
+P_INT std_sock_recv_max(P_INT *fd, char **data, uint32_t max) {
 
-    P_INT recv_cnt = -1;
-    P_LONG byte_cnt = 0;
+    *data = malloc((size_t)max);
 
-    uint32_t msg_size = 0;
-    P_CHAR header_bytes_read = 0;
-
-    struct sock_data *head = NULL;
-    struct sock_data *curr = NULL;
+    P_INT i, r = 0;
 
     do {
-        P_STRING buf = (P_STRING) malloc(BUF_SZE);
-        recv_cnt = recv(fd, buf, BUF_SZE, 0);
-        if (recv_cnt > 0) {
-            struct sock_data *node = (struct sock_data *) malloc(sizeof (struct sock_data));
-            P_INT header_i = 0;
-
-            if (header_bytes_read < HEADER_LEN) {
-                P_INT i;
-                for (i = 0; i < HEADER_LEN; i++) {
-                    if (header_bytes_read == i && header_i < recv_cnt) {
-                        msg_size += (buf[header_i] << (i * 8));
-                        header_i++;
-                        header_bytes_read++;
-                    }
-                }
-            }
-
-            node->buffer = buf;
-            node->start_i = header_i;
-            node->len = recv_cnt;
-            node->next = NULL;
-
-            if (curr == NULL) {
-                head = curr = node;
-            } else {
-                curr->next = node;
-                curr = node;
-            }
-
-            byte_cnt += recv_cnt;
-
+        
+        r = recv(*fd, data[i], max, 0);
+        
+        if(r > 0) {
+            
+            i += r;
+            
         } else {
-
-            free(buf);
+            
             break;
-
+            
         }
 
-    } while (header_bytes_read < HEADER_LEN || byte_cnt < (msg_size + HEADER_LEN));
+    } while (i <= max);
 
-    if (byte_cnt < HEADER_LEN) {
+    return i;
+    
+}
 
-        *data = malloc(0);
-        return 0;
+/**
+ * This function still needs to be enhanced to hook the module socket
+ * up to the *fd in a buf by buf stream of data -- otherwise memory
+ * would be a bit of a gamble...
+ * 
+ */
+P_INT std_sock_recv(P_INT *fd, char **data, P_INT hd_len) {
+    
+    P_STRING h_buf;
+    //Still need to chunk this bit...
+    P_INT recv_cnt = std_sock_recv_max(fd, &h_buf, hd_len);
 
-    }
+    if (recv_cnt == hd_len) {
 
-    byte_cnt -= HEADER_LEN;
-    *data = malloc(byte_cnt);
-
-    P_INT offset = 0;
-    struct sock_data *next;
-
-    for (curr = head; curr != NULL; curr = next) {
-
-        next = curr->next;
-
-        if (curr->start_i < curr->len) {
-            P_INT i;
-            for (i = curr->start_i; i < curr->len; i++)
-                (*data)[offset + (i - curr->start_i)] = (curr->buffer[i]);
-            offset += (curr->len - curr->start_i);
+        P_INT i;
+        uint32_t msg_size = 0;
+        
+        for (i = 0; i < hd_len; i++) {
+            
+            msg_size += (h_buf[i] << (i * 8));
+            
         }
-
-        free(curr->buffer);
-        free(curr);
+        
+        free(h_buf);
+        
+        return std_sock_recv_max(fd, data, msg_size);
 
     }
-
-    return byte_cnt;
+    
+    return -1;
+    
 }
 
 void std_sock_worker(P_INT *fd) {
+    
+    P_STRING hd_data;
+    P_STRING data;
+    
+    //This is all very theoretical - but here we go...
+    
+    /**
+     * Ok - the first 9 bytes consist of an 8 byte module code, followed
+     * by a 1 byte pre-header bitmap, that bitmap will be divided into
+     * 2 chunks... the first of these nibbles will define the length
+     * of the header(starting at byte 10) describing the length of the data.
+     * 
+     * That way we can handle up to 8192 petabytes as the message length.
+     * 
+     * So - pull 9 bytes...
+     * 
+     */
+    P_INT bytes = std_sock_recv_max(fd, &hd_data, 9);
+    
+    //TODO: Check length errors...
+    
+    //Get the pre-header bitmap, 9'th byte...
+    P_CHAR bitmap = hd_data[strlen(hd_data) - 1];
+    
+    /*
+     * Here be dragons!
+     * 
+     * Extract the length of the header starting at the 10'th byte
+     * We use the first 3 bits to determine the length...
+     * 
+     * so 3 + 2 + 1 is max value (7) -- we add one to give us a max of
+     * 8 (sizeof(long long)) --> and ignore 0
+     */
+    P_INT hd_len = BIT_EXTR(0, 3, bitmap) + 1;
+    
+        //Copy plug code out of header...
+    P_CHAR plug_t[8]; 
+    strncpy(&plug_t[0], hd_data, 8);
+    
+    free(hd_data);
+    
+    
+    P_INT d_bytes = std_sock_recv(fd, &data, hd_len);
+    
+    printf("Data: %s\n", data);
+    free(data);
+    
+    //TODO: Check length errors...
+    
+    
     
     /**
      * Just close the FD for now - till I can figure out the DB stuff...

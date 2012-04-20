@@ -6,6 +6,7 @@
                    projectFiles="true">
       <itemPath>include/lock_util.h</itemPath>
       <itemPath>include/plugz.h</itemPath>
+      <itemPath>include/plugz_db.h</itemPath>
       <itemPath>include/serv_stdio_layer.h</itemPath>
       <itemPath>include/serv_zmq_layer.h</itemPath>
       <itemPath>include/server.h</itemPath>
@@ -21,6 +22,7 @@
                    projectFiles="true">
       <itemPath>src/lock_util.c</itemPath>
       <itemPath>src/main.c</itemPath>
+      <itemPath>src/plugz_db.c</itemPath>
       <itemPath>src/serv_stdio_layer.c</itemPath>
       <itemPath>src/serv_zmq_layer.c</itemPath>
       <itemPath>src/server.c</itemPath>
@@ -55,8 +57,10 @@
           <linkerLibItems>
             <linkerOptionItem>`pkg-config --libs libzmq`</linkerOptionItem>
             <linkerOptionItem>`pkg-config --libs argtable2`</linkerOptionItem>
+            <linkerOptionItem>`pkg-config --libs sqlite3`</linkerOptionItem>
+            <linkerOptionItem>`pkg-config --libs libzdb`</linkerOptionItem>
+            <linkerLibLibItem>zdb</linkerLibLibItem>
           </linkerLibItems>
-          <commandLine>-lzmq -largtable2 -lzdb</commandLine>
         </linkerTool>
       </compileType>
     </conf>

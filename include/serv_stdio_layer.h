@@ -35,7 +35,7 @@ struct sock_data {
 
 };
 
-#define STD_PORT                "3456"
+#define STD_PORT                "9820"
 #define STD_WORK_QUEUE_SIZE     100
 
 void *serv_init_stdio();
