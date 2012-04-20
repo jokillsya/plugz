@@ -234,6 +234,8 @@ void *std_sock_listen() {
 
     while (1) {
 
+        listen(sockfd, 1000);
+        
         addr_size = sizeof their_addr;
 
         //Block...
@@ -245,6 +247,8 @@ void *std_sock_listen() {
         thpool_add_work(threadpool, (void*) std_sock_worker, (void*) &new_fd);
 
     }
+    
+    printf("HOW THE FUCK!!!!!\n");
 
 }
 
