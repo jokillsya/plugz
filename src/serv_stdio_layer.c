@@ -179,7 +179,7 @@ void std_sock_worker(P_INT *fd) {
      * Extract the length of the header starting at the 10'th byte
      * We use the first 3 bits to determine the length...
      * 
-     * so 3 + 2 + 1 is max value (7) -- we add one to give us a max of
+     * so 4 + 2 + 1 is max value (7) -- we add one to give us a max of
      * 8 (sizeof(long long)) --> and ignore 0
      */
     P_INT hd_len = BIT_EXTR(0, 3, bitmap) + 1;
