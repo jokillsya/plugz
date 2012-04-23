@@ -16,6 +16,24 @@ P_INT init_db() {
 
     ConnectionPool_start(pool);
     ConnectionPool_setMaxConnections(pool, POOL_SIZE);
+    
+    Connection_T con = ConnectionPool_getConnection(pool);
+    PreparedStatement_T stmt = Connection_prepareStatement(con, PLUGZ_TABLE_INIT);
+    
+    TRY
+    {
+        PreparedStatement_execute(stmt);
+    }
+    CATCH(SQLException)
+    {
+        printf("Unable to initialize Database!\n");
+        exit(-1);
+    }
+    FINALLY
+    {
+        Connection_close(con);
+    }
+    END_TRY;
 
     return EXIT_SUCCESS;
 
@@ -108,7 +126,6 @@ P_BOOL set_plug(plug_t * plug_t) {
     END_TRY;
 
     return r_val;
-
 
 }
 

@@ -58,7 +58,6 @@
             <linkerOptionItem>`pkg-config --libs libzmq`</linkerOptionItem>
             <linkerOptionItem>`pkg-config --libs argtable2`</linkerOptionItem>
             <linkerOptionItem>`pkg-config --libs sqlite3`</linkerOptionItem>
-            <linkerOptionItem>`pkg-config --libs libzdb`</linkerOptionItem>
             <linkerLibLibItem>zdb</linkerLibLibItem>
           </linkerLibItems>
         </linkerTool>

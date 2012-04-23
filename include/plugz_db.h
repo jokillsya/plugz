@@ -8,7 +8,7 @@
 #ifndef PLUGZ_DB_H
 #define	PLUGZ_DB_H
 
-#define SQLITE_STR      "sqlite:///var/plugz/plugz.db?synchronous=normal&heap_limit=4096&foreign_keys=on"
+#define SQLITE_STR      "sqlite:///etc/plugz/plugz.db?synchronous=normal&heap_limit=4096&foreign_keys=on;"
 #define POOL_SIZE       25
 
 /**
@@ -21,7 +21,7 @@
                                         (       code CHAR(6),           \
                                                 type INTEGER,           \
                                                 con_str                 \
-                                        )                               \
+                                        );                              \
                                 "
 
 #define PLUGZ_SET              "INSERT INTO plugz      \
@@ -40,7 +40,9 @@ typedef struct plug_t {
     P_INT       type;
     P_STRING_C  con_str;
 } plug_t;
-                                
+
+P_INT init_db();
+P_BOOL set_plug(plug_t * plug_t);
 
 #endif	/* PLUGZ_DB_H */
 

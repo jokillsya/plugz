@@ -34,13 +34,51 @@
 #include <sys/stat.h>
 #include <limits.h>
 #include <fcntl.h>
+#include <string.h>
 
 #include "../include/serv_zmq_layer.h"
 #include "../include/server.h"
 #include "../include/plugz.h"
+#include "../include/plugz_db.h"
 #include "../include/lock_util.h"
 
+static P_BOOL s_starts_with(P_STRING_C str, P_STRING_C sub_str) {
+
+    P_INT i;
+    P_BOOL ret = TRUE;
+
+    for (i = 0; i < strlen(sub_str); i++) {
+
+        if (str[i] != sub_str[i]) {
+
+            ret = FALSE;
+            break;
+
+        }
+
+    }
+
+    return ret;
+
+}
+
 static void register_module(const P_CHAR * code, const P_CHAR * ipc) {
+
+    plug_t plug;
+    plug.code = code;
+    plug.con_str = ipc;
+
+    if (s_starts_with(ipc, "ipc://") == TRUE) {
+
+        plug.type = 1;
+
+    } else {
+
+        plug.type = 2;
+
+    }
+
+    set_plug(&plug);
 
     printf("Registered module: '%s' at location '%s'\n", code, ipc);
 
@@ -77,15 +115,17 @@ static void start(P_INT s, P_INT k, P_INT r, P_STRING_C* strings, P_INT nstrings
     if ((nstrings > 0) && !r) {
         printf("module strings specified without -r option, ignoring module strings...\n");
     }
-    if (r) {
-        if (nstrings != 2) {
-            printf("invalid options specified with the -r flag, could not register module.");
-        } else {
-            register_module(strings[0], strings[1]);
+    if (is_root()) {
+        init_db();
+        if (r) {
+            if (nstrings != 2) {
+                printf("invalid options specified with the -r flag, could not register module.");
+            } else {
+                register_module(strings[0], strings[1]);
+            }
         }
-    }
-    if (s || k) {
-        if (is_root()) {
+        if (s || k) {
+
             if (s && !k) {
                 if (!dir_init()) {
                     printf("unable to initialize directories!\n");
@@ -102,9 +142,9 @@ static void start(P_INT s, P_INT k, P_INT r, P_STRING_C* strings, P_INT nstrings
             if (s && k) {
                 printf("ignored -s and -k flags: -s and -k options were used together, why would you want to do that!?\n");
             }
-        } else {
-            printf("the plugz service says: \"My heart belongs to root and root alone.\"\n");
         }
+    } else {
+        printf("the plugz service says: \"My heart belongs to root and root alone.\"\n");
     }
     printf("\n");
 }
@@ -114,8 +154,6 @@ void int2binary(unsigned int n, char *buffer, unsigned int buffer_size) {
     unsigned int i = (buffer_size - 1);
 
     buffer[i] = '\0';
-
-
 
     while (i > 0) {
 
@@ -128,8 +166,6 @@ void int2binary(unsigned int n, char *buffer, unsigned int buffer_size) {
             buffer[--i] = '0';
 
         }
-
-
 
         n >>= 1;
 
