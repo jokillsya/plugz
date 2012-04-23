@@ -65,7 +65,7 @@ void stop_server() {
 }
 
 void start_server() {
-
+    
     pid_t pid;
     pid = fork();
 
@@ -79,19 +79,12 @@ void start_server() {
 
         } else {
 
-            /**
-             * Start ZMQ and STDIO threads...
-             */
             pthread_t pt_zmq_server, pt_stdio_server;
             pthread_create(&pt_zmq_server, NULL, serv_init_zmq, NULL);
             pthread_create(&pt_stdio_server, NULL, serv_init_stdio, NULL);
             
             (void) pthread_join(pt_zmq_server, NULL);
             
-            /**
-             * This join never happens due to the above blocking forever...
-             * but put it in here for the sake of being thorough...
-             */
             
             (void) pthread_join(pt_stdio_server, NULL);
 

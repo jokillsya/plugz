@@ -93,7 +93,7 @@ P_INT std_sock_recv_max(P_INT *fd, char **data, uint32_t max) {
 
     *data = malloc((size_t)max);
 
-    P_INT i, r = 0;
+    P_INT i = 0, r = 0;
 
     do {
         
@@ -184,14 +184,13 @@ void std_sock_worker(P_INT *fd) {
      */
     P_INT hd_len = BIT_EXTR(0, 3, bitmap) + 1;
     
-        //Copy plug code out of header...
+    //Copy plug code out of header...
     P_CHAR plug_t[8]; 
     strncpy(&plug_t[0], hd_data, 8);
     
     free(hd_data);
     
-    
-    P_INT d_bytes = std_sock_recv(fd, &data, hd_len);
+    P_LLONG d_bytes = std_sock_recv(fd, &data, hd_len);
     
     printf("Data: %s\n", data);
     free(data);
