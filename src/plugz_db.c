@@ -39,28 +39,6 @@ P_INT init_db() {
 
 }
 
-int db_get_prod_count()
-{
-    Connection_T con = ConnectionPool_getConnection(pool);
-    PreparedStatement_T get_prod_stmt = Connection_prepareStatement(con, "   ");
-
-    ResultSet_T result = PreparedStatement_executeQuery(get_prod_stmt);
-
-    int count = 0;
-
-    if (ResultSet_next(result))
-    {
-
-        count = ResultSet_getInt(result, 1);
-
-    }
-
-    Connection_close(con);
-
-    return count;
-
-}
-
 P_BOOL get_plug(P_STRING_C proc_code, P_STRING *buffer) {
 
     Connection_T con = ConnectionPool_getConnection(pool);
