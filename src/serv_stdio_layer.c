@@ -46,20 +46,18 @@ void *array_concat(const void *a, size_t an,
     return p;
 }
 
-int sendall(int s, char *buf, int *len, P_BOOL prependHeader, int hd_len) {
+int sendall(int s, char *buf, long long *len, P_BOOL prependHeader, int hd_len) {
 
     char *data;
 
     if (prependHeader) {
         
-        int i, j = 0;
+        int i;
         char size_buf[hd_len];
         
         for(i = 0; i < hd_len; i ++) {
             
-            size_buf[i] = (char) (*len >> j);
-            //Next byte...
-            j += 8;
+            size_buf[i] = (char) (*len >> (i * 8));
             
         }
 
