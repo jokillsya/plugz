@@ -163,7 +163,7 @@ int std_sock_recv(int *fd, char **data, int hd_len) {
  * @param result
  * @return 
  */
-char *tmp_send_tcp_mod(const char *host, int port, char *data, long long d_len, int hd_len, char **result) {
+int tmp_send_tcp_mod(const char *host, int port, char *data, long long d_len, int hd_len, char **result) {
 
     char *r_phd;
     int p_socket;
@@ -299,8 +299,6 @@ void *std_sock_listen() {
         thpool_add_work(threadpool, (void*) std_sock_worker, (void*) &new_fd);
 
     }
-
-    printf("HOW THE FUCK!!!!!\n");
 
 }
 
