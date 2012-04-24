@@ -42,45 +42,34 @@
 #include "../include/plugz_db.h"
 #include "../include/lock_util.h"
 
-static P_BOOL s_starts_with(const char *str, const char *sub_str) {
-
-    unsigned i;
-    P_BOOL ret = TRUE;
-
-    for (i = 0; i < strlen(sub_str); i++) {
-
-        if (str[i] != sub_str[i]) {
-
-            ret = FALSE;
-            break;
-
-        }
-
-    }
-
-    return ret;
-
-}
-
-static void register_module(const char *code, const char *ipc) {
+static void register_module(const char *code, const char *ipc, const char *s_port) {
 
     plug_t plug;
     plug.code = code;
     plug.con_str = ipc;
+    //I know it's dodgy - leave me alone - I'll fix it later...
+    plug.port = atoi(s_port);
+    
+    P_BOOL l_valid = FALSE;
 
-    if (s_starts_with(ipc, "ipc://") == TRUE) {
-
+    if(strstr(ipc, "ipc://") != NULL) {
+        
         plug.type = 1;
-
-    } else {
-
+        l_valid = TRUE;
+        
+    } else if (strstr(ipc, "tcp://") != NULL) {
+        
         plug.type = 2;
-
+        l_valid = TRUE;
+        
+    } else {
+        
+        l_valid = FALSE;
+        printf("Invalid Module Location\n");
+        
     }
 
-    set_plug(&plug);
-
-    printf("Registered module: '%s' at location '%s'\n", code, ipc);
+    if(l_valid == TRUE) set_plug(&plug);
 
 }
 
@@ -118,10 +107,10 @@ static void start(int s, int k, int r, const char **strings, int nstrings) {
     if (is_root()) {
         init_db();
         if (r) {
-            if (nstrings != 2) {
+            if (nstrings != 3) {
                 printf("invalid options specified with the -r flag, could not register module.");
             } else {
-                register_module(strings[0], strings[1]);
+                register_module(strings[0], strings[1], strings[2]);
             }
         }
         if (s || k) {
@@ -154,7 +143,7 @@ int main(int argc, char **argv) {
     struct arg_lit *plugz_start_opt = arg_lit0("s", "start", "Start the plugz server if it isn't already started.");
     struct arg_lit *plugz_stop_opt = arg_lit0("k", "kill", "Kill the plugz server if it is started.");
     struct arg_lit *plugs_reg_mod_opt = arg_lit0("r", "register", "Register a module.");
-    struct arg_str *strs = arg_strn(NULL, NULL, "STRING", 0, 2, "<Module code> <Module location(ipc/tcp)>");
+    struct arg_str *strs = arg_strn(NULL, NULL, "STRING", 0, 3, "<Module code> <Module location(ipc/tcp)> <port>");
     struct arg_lit *help = arg_lit0(NULL, "help", "print this help and exit");
     struct arg_end *end = arg_end(20);
     void *argtable[] = {plugz_start_opt, plugz_stop_opt, help, plugs_reg_mod_opt, strs, end};

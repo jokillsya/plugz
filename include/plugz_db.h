@@ -17,32 +17,37 @@
  * 1 = IPC
  * 2 = TPC/IP
  */
-#define PLUGZ_TABLE_INIT       "CREATE TABLE IF NOT EXISTS plugz       \
-                                        (       code CHAR(6),           \
-                                                type INTEGER,           \
-                                                con_str                 \
-                                        );                              \
+#define PLUGZ_TABLE_INIT       "CREATE TABLE IF NOT EXISTS plugz         \
+                                        (       code CHAR(8),            \
+                                                type INT,                \
+                                                con_str TEXT,            \
+                                                port INT,                \
+                                                PRIMARY KEY (code)       \
+                                        );                               \
                                 "
 
-#define PLUGZ_SET              "INSERT INTO plugz      \
-                                        (               \
-                                                code,   \
-                                                type,   \
-                                                con_str \
-                                        )               \
-                                 VALUES(?, ?, ?)        \
+#define PLUGZ_SET              "INSERT INTO plugz        \
+                                        (                \
+                                                code,    \
+                                                type,    \
+                                                con_str, \
+                                                port     \
+                                        )                \
+                                 VALUES(?, ?, ?, ?);     \
                                 "
 
-#define PLUGZ_GET              "SELECT con_str FROM plugz WHER code = ?"
+#define PLUGZ_GET              "SELECT type, con_str, port FROM plugz WHER code = ?"
 
 typedef struct plug_t {
     const char *code;
-    int        type;
+    int         type;
     const char *con_str;
+    int         port;
 } plug_t;
 
 P_BOOL init_db();
-P_BOOL set_plug(plug_t * plug_t);
+P_BOOL get_plug(const char *proc_code, plug_t *buffer);
+P_BOOL set_plug(plug_t *plug_t);
 
 #endif	/* PLUGZ_DB_H */
 

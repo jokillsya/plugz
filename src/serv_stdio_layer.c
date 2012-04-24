@@ -30,6 +30,7 @@
 #include <arpa/inet.h>
 
 #include "../include/plugz.h"
+#include "../include/plugz_db.h"
 #include "../include/serv_stdio_layer.h"
 #include "../include/thpool.h"
 
@@ -51,14 +52,14 @@ int sendall(int s, char *buf, long long *len, P_BOOL prependHeader, int hd_len) 
     char *data;
 
     if (prependHeader) {
-        
+
         int i;
         char size_buf[hd_len];
-        
-        for(i = 0; i < hd_len; i ++) {
-            
+
+        for (i = 0; i < hd_len; i++) {
+
             size_buf[i] = (char) (*len >> (i * 8));
-            
+
         }
 
         data = ARRAY_CONCAT(char, size_buf, hd_len, buf, *len);
@@ -95,28 +96,28 @@ int sendall(int s, char *buf, long long *len, P_BOOL prependHeader, int hd_len) 
 
 int std_sock_recv_max(int *fd, char **data, uint32_t max) {
 
-    *data = malloc((size_t)max);
+    *data = malloc((size_t) max);
 
     int i = 0, r = 0;
 
     do {
-        
+
         r = recv(*fd, data[i], max, 0);
-        
-        if(r > 0) {
-            
+
+        if (r > 0) {
+
             i += r;
-            
+
         } else {
-            
+
             break;
-            
+
         }
 
     } while (i <= max);
 
     return i;
-    
+
 }
 
 /**
@@ -126,7 +127,7 @@ int std_sock_recv_max(int *fd, char **data, uint32_t max) {
  * 
  */
 int std_sock_recv(int *fd, char **data, int hd_len) {
-    
+
     char *h_buf;
     //Still need to chunk this bit...
     int recv_cnt = std_sock_recv_max(fd, &h_buf, hd_len);
@@ -135,30 +136,74 @@ int std_sock_recv(int *fd, char **data, int hd_len) {
 
         int i;
         uint32_t msg_size = 0;
-        
+
         for (i = 0; i < hd_len; i++) {
-            
+
             msg_size += (h_buf[i] << (i * 8));
-            
+
         }
-        
+
         free(h_buf);
-        
+
         return std_sock_recv_max(fd, data, msg_size);
 
     }
-    
+
     return -1;
+
+}
+
+/**
+ * LOADS of error handling and stuff required!!!!!!!!!
+ * @param host
+ * @param port
+ * @param data
+ * @param d_len
+ * @param hd_len
+ * @param result
+ * @return 
+ */
+char *tmp_send_tcp_mod(const char *host, int port, char *data, long long d_len, int hd_len, char **result) {
+
+    char *r_phd;
+    int p_socket;
+    struct sockaddr_in dest;
+
+    p_socket = socket(AF_INET, SOCK_STREAM, 0);
+
+    memset(&dest, 0, sizeof (dest)); /* zero the struct */
+    dest.sin_family = AF_INET;
+    dest.sin_addr.s_addr = inet_addr(host); /* set destination IP number */
+    dest.sin_port = htons(port); /* set destination port number */
+
+    connect(p_socket, (struct sockaddr *) &dest, sizeof (struct sockaddr));
+
+    //TODO: Handle error
+    sendall(p_socket, data, &d_len, TRUE, hd_len);
+    
+    //Get pre-header
+    std_sock_recv_max(&p_socket, &r_phd, 1);
+    
+    int p_hd_len = BIT_EXTR(0, 3, r_phd[0]) + 1;
+    
+    free(r_phd);
+    
+    std_sock_recv(&p_socket, result, p_hd_len);
+    
+    close(p_socket);
+    
+    return EXIT_SUCCESS;
     
 }
 
 void std_sock_worker(int *fd) {
-    
+
     char *hd_data;
     char *data;
-    
+    char *response;
+
     //This is all very theoretical - but here we go...
-    
+
     /**
      * Ok - the first 9 bytes consist of an 8 byte module code, followed
      * by a 1 byte pre-header bitmap, that bitmap will be divided into
@@ -170,13 +215,13 @@ void std_sock_worker(int *fd) {
      * So - pull 9 bytes...
      * 
      */
-    int bytes = std_sock_recv_max(fd, &hd_data, 9);
-    
+    std_sock_recv_max(fd, &hd_data, 9);
+
     //TODO: Check length errors...
-    
+
     //Get the pre-header bitmap, 9'th byte...
     char bitmap = hd_data[strlen(hd_data) - 1];
-    
+
     /*
      * Here be dragons!
      * 
@@ -187,22 +232,26 @@ void std_sock_worker(int *fd) {
      * 8 (sizeof(long long)) --> and ignore 0
      */
     int hd_len = BIT_EXTR(0, 3, bitmap) + 1;
-    
+
     //Copy plug code out of header...
-    char plug_t[8]; 
-    strncpy(&plug_t[0], hd_data, 8);
+    char plug_code[8];
+    strncpy(&plug_code[0], hd_data, 8);
     
+    plug_t *plug = malloc(sizeof(plug_t));
+    
+    get_plug(plug_code, plug);
+
     free(hd_data);
-    
+
     long long d_bytes = std_sock_recv(fd, &data, hd_len);
     
+    tmp_send_tcp_mod(plug->con_str, plug->port, data, d_bytes, hd_len, &response);
+
     printf("Data: %s\n", data);
+    printf("Response: %s\n", response);
+    free(response);
     free(data);
-    
-    //TODO: Check length errors...
-    
-    
-    
+    free(plug);
     /**
      * Just close the FD for now - till I can figure out the DB stuff...
      */
@@ -238,7 +287,7 @@ void *std_sock_listen() {
     while (1) {
 
         listen(sockfd, 1000);
-        
+
         addr_size = sizeof their_addr;
 
         //Block...
@@ -250,7 +299,7 @@ void *std_sock_listen() {
         thpool_add_work(threadpool, (void*) std_sock_worker, (void*) &new_fd);
 
     }
-    
+
     printf("HOW THE FUCK!!!!!\n");
 
 }
@@ -259,7 +308,7 @@ void *serv_init_stdio(void) {
 
     //Listen for client connections...
     std_sock_listen();
-    
+
     //Never returns!
     return EXIT_SUCCESS;
 }

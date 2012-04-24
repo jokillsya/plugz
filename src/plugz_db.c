@@ -40,7 +40,9 @@ P_BOOL init_db() {
 
 }
 
-P_BOOL get_plug(const char *proc_code, char **buffer) {
+P_BOOL get_plug(const char *proc_code, plug_t *buffer) {
+    
+    P_BOOL ret = FALSE;
 
     Connection_T con = ConnectionPool_getConnection(pool);
     PreparedStatement_T stmt = Connection_prepareStatement(con, PLUGZ_GET);
@@ -48,26 +50,21 @@ P_BOOL get_plug(const char *proc_code, char **buffer) {
     PreparedStatement_setString(stmt, 1, proc_code);
     ResultSet_T result = PreparedStatement_executeQuery(stmt);
 
-    const char *res;
-
+    //TODO: Handle Exceptions...
     if (ResultSet_next(result)) {
-
-        res = ResultSet_getString(result, 1);
-        *buffer = malloc(strlen(res));
-        strcpy(*buffer, res);
+        
+        buffer->code = proc_code;
+        buffer->type = ResultSet_getInt(result, 1);
+        strcpy((char *)buffer->con_str, ResultSet_getString(result, 2));
+        buffer->port = ResultSet_getInt(result, 3);
+        
+        ret = TRUE;
 
     }
 
     Connection_close(con);
 
-    if (res == NULL) {
-
-        return FALSE;
-
-    }
-
-    return TRUE;
-
+    return ret;
 
 }
 
@@ -82,6 +79,7 @@ P_BOOL set_plug(plug_t *plug_t) {
     PreparedStatement_setString(stmt, 1, plug_t->code);
     PreparedStatement_setInt(stmt, 2, plug_t->type);
     PreparedStatement_setString(stmt, 3, plug_t->con_str);
+    PreparedStatement_setInt(stmt, 4, plug_t->port);
 
     TRY
     {
@@ -92,6 +90,8 @@ P_BOOL set_plug(plug_t *plug_t) {
     }
 
     CATCH(SQLException) {
+        
+        printf("Error: %s\n", Connection_getLastError(con));
 
         r_val = FALSE;
 
