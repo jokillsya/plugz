@@ -52,12 +52,14 @@ int sendall(int s, char *buf, int *len, P_BOOL prependHeader, int hd_len) {
 
     if (prependHeader) {
         
-        int i;
+        int i, j = 0;
         char size_buf[hd_len];
         
-        for(i = 0; i < hd_len; i += 8) {
+        for(i = 0; i < hd_len; i ++) {
             
-            size_buf[i] = (char) (*len >> i);
+            size_buf[i] = (char) (*len >> j);
+            //Next byte...
+            j += 8;
             
         }
 
