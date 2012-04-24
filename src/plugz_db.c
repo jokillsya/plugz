@@ -1,13 +1,14 @@
 #include <zdb.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "../include/plugz.h"
 #include "../include/plugz_db.h"
 
 static URL_T url;
 static ConnectionPool_T pool;
 
-P_INT init_db() {
+P_BOOL init_db() {
 
     url = URL_new(SQLITE_STR);
     pool = ConnectionPool_new(url);
@@ -35,11 +36,11 @@ P_INT init_db() {
     }
     END_TRY;
 
-    return EXIT_SUCCESS;
+    return TRUE;
 
 }
 
-P_BOOL get_plug(P_STRING_C proc_code, P_STRING *buffer) {
+P_BOOL get_plug(const char *proc_code, char **buffer) {
 
     Connection_T con = ConnectionPool_getConnection(pool);
     PreparedStatement_T stmt = Connection_prepareStatement(con, PLUGZ_GET);
@@ -47,7 +48,7 @@ P_BOOL get_plug(P_STRING_C proc_code, P_STRING *buffer) {
     PreparedStatement_setString(stmt, 1, proc_code);
     ResultSet_T result = PreparedStatement_executeQuery(stmt);
 
-    P_STRING_C res;
+    const char *res;
 
     if (ResultSet_next(result)) {
 
@@ -71,7 +72,7 @@ P_BOOL get_plug(P_STRING_C proc_code, P_STRING *buffer) {
 }
 
 //plug * plug ->> hehehe...
-P_BOOL set_plug(plug_t * plug_t) {
+P_BOOL set_plug(plug_t *plug_t) {
 
     P_BOOL r_val;
 

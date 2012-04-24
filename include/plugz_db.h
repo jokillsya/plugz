@@ -36,12 +36,12 @@
 #define PLUGZ_GET              "SELECT con_str FROM plugz WHER code = ?"
 
 typedef struct plug_t {
-    P_STRING_C  code;
-    P_INT       type;
-    P_STRING_C  con_str;
+    const char *code;
+    int        type;
+    const char *con_str;
 } plug_t;
 
-P_INT init_db();
+P_BOOL init_db();
 P_BOOL set_plug(plug_t * plug_t);
 
 #endif	/* PLUGZ_DB_H */

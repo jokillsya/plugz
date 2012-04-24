@@ -35,13 +35,13 @@
 
 pid_t get_locking_pid() {
 
-    P_CHAR dirpath[PATH_MAX];
-    P_CHAR filepath[PATH_MAX];
+    char dirpath[PATH_MAX];
+    char filepath[PATH_MAX];
 
     snprintf(dirpath, PATH_MAX, "%s/%s", "/etc", P_APP_DIR);
     snprintf(filepath, PATH_MAX, "%s/%s", dirpath, P_LCK_FLE);
 
-    P_INT fd;
+    int fd;
     struct flock lock;
 
     lock.l_type = F_WRLCK;
@@ -64,15 +64,15 @@ pid_t get_locking_pid() {
 
 P_BOOL lock(pid_t pid) {
 
-    P_CHAR dirpath[PATH_MAX];
-    P_CHAR filepath[PATH_MAX];
+    char dirpath[PATH_MAX];
+    char filepath[PATH_MAX];
 
-    snprintf(dirpath, PATH_MAX, "%s/%s", "/etc/", P_APP_DIR);
-    snprintf(filepath, PATH_MAX, "%s/%s", dirpath, P_LCK_FLE);
+    snprintf(&dirpath[0], PATH_MAX, "%s/%s", "/etc/", P_APP_DIR);
+    snprintf(&filepath[0], PATH_MAX, "%s/%s", dirpath, P_LCK_FLE);
 
-    P_INT fd;
+    int fd;
     struct flock fl;
-    fd = open(filepath, O_RDWR);
+    fd = open(&filepath[0], O_RDWR);
     if (fd == -1)
         return FALSE;
     fl.l_type = F_WRLCK;

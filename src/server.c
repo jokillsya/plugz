@@ -34,7 +34,7 @@ int s_interrupted = 0;
  * 
  * @param signal_value
  */
-void s_signal_handler(P_INT signal_value) {
+void s_signal_handler(int signal_value) {
     s_interrupted = 1;
 }
 

@@ -42,9 +42,9 @@
 #include "../include/plugz_db.h"
 #include "../include/lock_util.h"
 
-static P_BOOL s_starts_with(P_STRING_C str, P_STRING_C sub_str) {
+static P_BOOL s_starts_with(const char *str, const char *sub_str) {
 
-    P_INT i;
+    unsigned i;
     P_BOOL ret = TRUE;
 
     for (i = 0; i < strlen(sub_str); i++) {
@@ -62,7 +62,7 @@ static P_BOOL s_starts_with(P_STRING_C str, P_STRING_C sub_str) {
 
 }
 
-static void register_module(const P_CHAR * code, const P_CHAR * ipc) {
+static void register_module(const char *code, const char *ipc) {
 
     plug_t plug;
     plug.code = code;
@@ -92,8 +92,8 @@ static P_BOOL is_root() {
 }
 
 static P_BOOL dir_init() {
-    P_CHAR dirpath[PATH_MAX];
-    P_CHAR filepath[PATH_MAX];
+    char dirpath[PATH_MAX];
+    char filepath[PATH_MAX];
     snprintf(dirpath, PATH_MAX, "%s/%s", "/etc", P_APP_DIR);
     struct stat st;
     if (!EXISTS(dirpath, st)) {
@@ -110,7 +110,7 @@ static P_BOOL dir_init() {
     return TRUE;
 }
 
-static void start(P_INT s, P_INT k, P_INT r, P_STRING_C* strings, P_INT nstrings) {
+static void start(int s, int k, int r, const char **strings, int nstrings) {
     printf("\n");
     if ((nstrings > 0) && !r) {
         printf("module strings specified without -r option, ignoring module strings...\n");
@@ -149,30 +149,6 @@ static void start(P_INT s, P_INT k, P_INT r, P_STRING_C* strings, P_INT nstrings
     printf("\n");
 }
 
-void int2binary(unsigned int n, char *buffer, unsigned int buffer_size) {
-
-    unsigned int i = (buffer_size - 1);
-
-    buffer[i] = '\0';
-
-    while (i > 0) {
-
-        if (n & 0x01) {
-
-            buffer[--i] = '1';
-
-        } else {
-
-            buffer[--i] = '0';
-
-        }
-
-        n >>= 1;
-
-    }
-
-}
-
 int main(int argc, char **argv) {
 
     struct arg_lit *plugz_start_opt = arg_lit0("s", "start", "Start the plugz server if it isn't already started.");
@@ -181,8 +157,8 @@ int main(int argc, char **argv) {
     struct arg_str *strs = arg_strn(NULL, NULL, "STRING", 0, 2, "<Module code> <Module location(ipc/tcp)>");
     struct arg_lit *help = arg_lit0(NULL, "help", "print this help and exit");
     struct arg_end *end = arg_end(20);
-    void* argtable[] = {plugz_start_opt, plugz_stop_opt, help, plugs_reg_mod_opt, strs, end};
-    const P_CHAR* progname = "plugz";
+    void *argtable[] = {plugz_start_opt, plugz_stop_opt, help, plugs_reg_mod_opt, strs, end};
+    const char *progname = "plugz";
     int nerrors;
     /* verify the argtable[] entries were allocated sucessfully */
     if (arg_nullcheck(argtable) != 0) {

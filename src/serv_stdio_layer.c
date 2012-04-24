@@ -40,25 +40,29 @@
 
 void *array_concat(const void *a, size_t an,
         const void *b, size_t bn, size_t s) {
-    P_CHAR *p = malloc(s * (an + bn));
+    char *p = malloc(s * (an + bn));
     memcpy(p, a, an * s);
     memcpy(p + an*s, b, bn * s);
     return p;
 }
 
-int sendall(P_INT s, P_STRING buf, P_INT *len, P_INT prependHeader, P_INT hd_len) {
+int sendall(int s, char *buf, int *len, P_BOOL prependHeader, int hd_len) {
 
     char *data;
 
     if (prependHeader) {
+        
+        int i;
+        char size_buf[hd_len];
+        
+        for(i = 0; i < hd_len; i += 8) {
+            
+            size_buf[i] = (char) (*len >> i);
+            
+        }
 
-        P_CHAR size_buf[hd_len];
-        size_buf[0] = (char) (*len);
-        size_buf[1] = (char) (*len >> 8);
-        size_buf[2] = (char) (*len >> 16);
-        size_buf[3] = (char) (*len >> 24);
-        data = ARRAY_CONCAT(P_CHAR, size_buf, 4, buf, *len);
-        *len += 4;
+        data = ARRAY_CONCAT(char, size_buf, hd_len, buf, *len);
+        *len += hd_len;
 
     } else {
 
@@ -66,9 +70,9 @@ int sendall(P_INT s, P_STRING buf, P_INT *len, P_INT prependHeader, P_INT hd_len
 
     }
 
-    P_INT total = 0; // how many bytes we've sent
-    P_INT bytesleft = *len; // how many we have left to send
-    P_INT n = 0;
+    int total = 0; // how many bytes we've sent
+    int bytesleft = *len; // how many we have left to send
+    int n = 0;
 
     while (total < *len) {
 
@@ -89,11 +93,11 @@ int sendall(P_INT s, P_STRING buf, P_INT *len, P_INT prependHeader, P_INT hd_len
     return n == -1 ? -1 : 0; // return -1 on failure, 0 on success
 }
 
-P_INT std_sock_recv_max(P_INT *fd, char **data, uint32_t max) {
+int std_sock_recv_max(int *fd, char **data, uint32_t max) {
 
     *data = malloc((size_t)max);
 
-    P_INT i = 0, r = 0;
+    int i = 0, r = 0;
 
     do {
         
@@ -121,15 +125,15 @@ P_INT std_sock_recv_max(P_INT *fd, char **data, uint32_t max) {
  * would be a bit of a gamble...
  * 
  */
-P_INT std_sock_recv(P_INT *fd, char **data, P_INT hd_len) {
+int std_sock_recv(int *fd, char **data, int hd_len) {
     
-    P_STRING h_buf;
+    char *h_buf;
     //Still need to chunk this bit...
-    P_INT recv_cnt = std_sock_recv_max(fd, &h_buf, hd_len);
+    int recv_cnt = std_sock_recv_max(fd, &h_buf, hd_len);
 
     if (recv_cnt == hd_len) {
 
-        P_INT i;
+        int i;
         uint32_t msg_size = 0;
         
         for (i = 0; i < hd_len; i++) {
@@ -148,10 +152,10 @@ P_INT std_sock_recv(P_INT *fd, char **data, P_INT hd_len) {
     
 }
 
-void std_sock_worker(P_INT *fd) {
+void std_sock_worker(int *fd) {
     
-    P_STRING hd_data;
-    P_STRING data;
+    char *hd_data;
+    char *data;
     
     //This is all very theoretical - but here we go...
     
@@ -166,12 +170,12 @@ void std_sock_worker(P_INT *fd) {
      * So - pull 9 bytes...
      * 
      */
-    P_INT bytes = std_sock_recv_max(fd, &hd_data, 9);
+    int bytes = std_sock_recv_max(fd, &hd_data, 9);
     
     //TODO: Check length errors...
     
     //Get the pre-header bitmap, 9'th byte...
-    P_CHAR bitmap = hd_data[strlen(hd_data) - 1];
+    char bitmap = hd_data[strlen(hd_data) - 1];
     
     /*
      * Here be dragons!
@@ -182,15 +186,15 @@ void std_sock_worker(P_INT *fd) {
      * so 4 + 2 + 1 is max value (7) -- we add one to give us a max of
      * 8 (sizeof(long long)) --> and ignore 0
      */
-    P_INT hd_len = BIT_EXTR(0, 3, bitmap) + 1;
+    int hd_len = BIT_EXTR(0, 3, bitmap) + 1;
     
     //Copy plug code out of header...
-    P_CHAR plug_t[8]; 
+    char plug_t[8]; 
     strncpy(&plug_t[0], hd_data, 8);
     
     free(hd_data);
     
-    P_LLONG d_bytes = std_sock_recv(fd, &data, hd_len);
+    long long d_bytes = std_sock_recv(fd, &data, hd_len);
     
     printf("Data: %s\n", data);
     free(data);
@@ -212,7 +216,7 @@ void *std_sock_listen() {
     socklen_t addr_size;
     struct addrinfo hints;
     struct addrinfo *res;
-    P_INT sockfd;
+    int sockfd;
 
     // first, load up address structs with getaddrinfo():
 
@@ -238,7 +242,7 @@ void *std_sock_listen() {
         addr_size = sizeof their_addr;
 
         //Block...
-        P_INT new_fd = accept(sockfd, (struct sockaddr *) &their_addr, &addr_size);
+        int new_fd = accept(sockfd, (struct sockaddr *) &their_addr, &addr_size);
 
         /**
          * Add a fd to the work queue - worker needs to handle it... 

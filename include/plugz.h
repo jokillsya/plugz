@@ -26,16 +26,9 @@
 #ifndef PLUGZ_H
 #define	PLUGZ_H
 
-#define P_CHAR          char
-#define P_CHAR_C        const P_CHAR
-#define P_STRING        P_CHAR *
-#define P_STRING_C      const P_STRING
-#define P_INT           int
-#define P_LONG          long
-#define P_LLONG         long long
-#define P_BOOL          char
-#define TRUE            (char)1
-#define FALSE           (char)0
+#define P_BOOL          unsigned char
+#define TRUE            (P_BOOL)1
+#define FALSE           (P_BOOL)0
 
 #define EXISTS(path, statstruct)        (stat(path, &statstruct) == 0)
 #define MKDIR(dirpath, mode)            (!(mkdir(dirpath, mode) == -1))

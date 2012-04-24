@@ -44,7 +44,7 @@ static void * worker_routine(void *context) {
 
     while (!s_interrupted) {
 
-        P_STRING string = s_recv(receiver);
+        char *string = s_recv(receiver);
 
         if ((string == NULL) || (*string = '\0')) {
             printf("W: interrupt received, killing server…\n");
@@ -81,7 +81,7 @@ void *serv_init_zmq(void) {
     zmq_bind(workers, "inproc://workers");
 
     // Launch pool of worker threads
-    P_INT thread_nbr;
+    int thread_nbr;
     for (thread_nbr = 0; thread_nbr < 5; thread_nbr++) {
         pthread_t worker;
         pthread_create(&worker, NULL, worker_routine, context);
