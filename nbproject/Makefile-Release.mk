@@ -36,7 +36,6 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/src/serv_zmq_layer.o \
 	${OBJECTDIR}/src/main.o \
-	${OBJECTDIR}/src/thpool.o \
 	${OBJECTDIR}/src/serv_stdio_layer.o \
 	${OBJECTDIR}/src/plugz_db.o \
 	${OBJECTDIR}/src/lock_util.o \
@@ -76,11 +75,6 @@ ${OBJECTDIR}/src/main.o: src/main.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
 	$(COMPILE.c) -Wall -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/main.o src/main.c
-
-${OBJECTDIR}/src/thpool.o: src/thpool.c 
-	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} $@.d
-	$(COMPILE.c) -Wall -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/thpool.o src/thpool.c
 
 ${OBJECTDIR}/src/serv_stdio_layer.o: src/serv_stdio_layer.c 
 	${MKDIR} -p ${OBJECTDIR}/src

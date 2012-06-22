@@ -36,7 +36,6 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/src/serv_zmq_layer.o \
 	${OBJECTDIR}/src/main.o \
-	${OBJECTDIR}/src/thpool.o \
 	${OBJECTDIR}/src/serv_stdio_layer.o \
 	${OBJECTDIR}/src/plugz_db.o \
 	${OBJECTDIR}/src/lock_util.o \
@@ -57,7 +56,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=`pkg-config --libs libzmq` `pkg-config --libs argtable2` `pkg-config --libs sqlite3` -lzdb  
+LDLIBSOPTIONS=`pkg-config --libs libzmq` `pkg-config --libs argtable2` `pkg-config --libs sqlite3` -lzdb `pkg-config --libs glib-2.0` `pkg-config --libs gthread-2.0`  
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
@@ -70,37 +69,32 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/plugz: ${OBJECTFILES}
 ${OBJECTDIR}/src/serv_zmq_layer.o: src/serv_zmq_layer.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.c) -Wall `pkg-config --cflags libzmq` `pkg-config --cflags argtable2` `pkg-config --cflags sqlite3`    -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/serv_zmq_layer.o src/serv_zmq_layer.c
+	$(COMPILE.c) -Wall `pkg-config --cflags libzmq` `pkg-config --cflags argtable2` `pkg-config --cflags sqlite3` `pkg-config --cflags glib-2.0` `pkg-config --cflags gthread-2.0`    -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/serv_zmq_layer.o src/serv_zmq_layer.c
 
 ${OBJECTDIR}/src/main.o: src/main.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.c) -Wall `pkg-config --cflags libzmq` `pkg-config --cflags argtable2` `pkg-config --cflags sqlite3`    -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/main.o src/main.c
-
-${OBJECTDIR}/src/thpool.o: src/thpool.c 
-	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} $@.d
-	$(COMPILE.c) -Wall `pkg-config --cflags libzmq` `pkg-config --cflags argtable2` `pkg-config --cflags sqlite3`    -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/thpool.o src/thpool.c
+	$(COMPILE.c) -Wall `pkg-config --cflags libzmq` `pkg-config --cflags argtable2` `pkg-config --cflags sqlite3` `pkg-config --cflags glib-2.0` `pkg-config --cflags gthread-2.0`    -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/main.o src/main.c
 
 ${OBJECTDIR}/src/serv_stdio_layer.o: src/serv_stdio_layer.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.c) -Wall `pkg-config --cflags libzmq` `pkg-config --cflags argtable2` `pkg-config --cflags sqlite3`    -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/serv_stdio_layer.o src/serv_stdio_layer.c
+	$(COMPILE.c) -Wall `pkg-config --cflags libzmq` `pkg-config --cflags argtable2` `pkg-config --cflags sqlite3` `pkg-config --cflags glib-2.0` `pkg-config --cflags gthread-2.0`    -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/serv_stdio_layer.o src/serv_stdio_layer.c
 
 ${OBJECTDIR}/src/plugz_db.o: src/plugz_db.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.c) -Wall `pkg-config --cflags libzmq` `pkg-config --cflags argtable2` `pkg-config --cflags sqlite3`    -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/plugz_db.o src/plugz_db.c
+	$(COMPILE.c) -Wall `pkg-config --cflags libzmq` `pkg-config --cflags argtable2` `pkg-config --cflags sqlite3` `pkg-config --cflags glib-2.0` `pkg-config --cflags gthread-2.0`    -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/plugz_db.o src/plugz_db.c
 
 ${OBJECTDIR}/src/lock_util.o: src/lock_util.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.c) -Wall `pkg-config --cflags libzmq` `pkg-config --cflags argtable2` `pkg-config --cflags sqlite3`    -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/lock_util.o src/lock_util.c
+	$(COMPILE.c) -Wall `pkg-config --cflags libzmq` `pkg-config --cflags argtable2` `pkg-config --cflags sqlite3` `pkg-config --cflags glib-2.0` `pkg-config --cflags gthread-2.0`    -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/lock_util.o src/lock_util.c
 
 ${OBJECTDIR}/src/server.o: src/server.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.c) -Wall `pkg-config --cflags libzmq` `pkg-config --cflags argtable2` `pkg-config --cflags sqlite3`    -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/server.o src/server.c
+	$(COMPILE.c) -Wall `pkg-config --cflags libzmq` `pkg-config --cflags argtable2` `pkg-config --cflags sqlite3` `pkg-config --cflags glib-2.0` `pkg-config --cflags gthread-2.0`    -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/server.o src/server.c
 
 # Subprojects
 .build-subprojects:

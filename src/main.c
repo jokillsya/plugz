@@ -22,6 +22,7 @@
  *
  * Created on 31 March 2012, 12:16 PM
  */
+#include <glib-2.0/glib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -36,7 +37,7 @@
 #include <fcntl.h>
 #include <string.h>
 
-#include "../include/serv_zmq_layer.h"
+//#include "../include/serv_zmq_layer.h"
 #include "../include/server.h"
 #include "../include/plugz.h"
 #include "../include/plugz_db.h"
@@ -50,7 +51,7 @@ static void register_module(const char *code, const char *ipc, const char *s_por
     //I know it's dodgy - leave me alone - I'll fix it later...
     plug.port = atoi(s_port);
     
-    P_BOOL l_valid = FALSE;
+    gboolean l_valid = FALSE;
 
     if(strstr(ipc, "ipc://") != NULL) {
         
@@ -73,16 +74,16 @@ static void register_module(const char *code, const char *ipc, const char *s_por
 
 }
 
-static P_BOOL is_root() {
+static gboolean is_root() {
     if (geteuid() != 0) {
         return FALSE;
     }
     return TRUE;
 }
 
-static P_BOOL dir_init() {
-    char dirpath[PATH_MAX];
-    char filepath[PATH_MAX];
+static gboolean dir_init() {
+    gchar dirpath[PATH_MAX];
+    gchar filepath[PATH_MAX];
     snprintf(dirpath, PATH_MAX, "%s/%s", "/etc", P_APP_DIR);
     struct stat st;
     if (!EXISTS(dirpath, st)) {
@@ -99,7 +100,7 @@ static P_BOOL dir_init() {
     return TRUE;
 }
 
-static void start(int s, int k, int r, const char **strings, int nstrings) {
+static void start(gint s, gint k, gint r, const gchar **strings, gint nstrings) {
     printf("\n");
     if ((nstrings > 0) && !r) {
         printf("module strings specified without -r option, ignoring module strings...\n");
@@ -138,7 +139,7 @@ static void start(int s, int k, int r, const char **strings, int nstrings) {
     printf("\n");
 }
 
-int main(int argc, char **argv) {
+int main(gint argc, gchar **argv) {
 
     struct arg_lit *plugz_start_opt = arg_lit0("s", "start", "Start the plugz server if it isn't already started.");
     struct arg_lit *plugz_stop_opt = arg_lit0("k", "kill", "Kill the plugz server if it is started.");

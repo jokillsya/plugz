@@ -19,7 +19,8 @@
 #include <unistd.h>
 #include <signal.h>
 #include <stdio.h>
-#include <pthread.h>
+#include <glib.h>
+#include <stdlib.h>
 
 #include "../include/serv_zmq_layer.h"
 #include "../include/serv_stdio_layer.h"
@@ -78,16 +79,47 @@ void start_server() {
             printf("plugz service already running on pid: %d\n", lpid);
 
         } else {
-
-            pthread_t pt_zmq_server, pt_stdio_server;
-            pthread_create(&pt_zmq_server, NULL, serv_init_zmq, NULL);
-            pthread_create(&pt_stdio_server, NULL, serv_init_stdio, NULL);
             
-            (void) pthread_join(pt_zmq_server, NULL);
+            GThread *gt_zmq_server, *gt_stdio_server;
             
+            char *zmq_msg = "ZMQ Server Thread";
+            char *std_msg = "STDIO Server Thread";
             
-            (void) pthread_join(pt_stdio_server, NULL);
+            GError *zmq_err = NULL;
+            GError *std_err = NULL;
+            
+            if(g_thread_supported()) {
+                
+                g_thread_init(NULL);
+                
+            } else {
+                
+                printf("SEVERE ERROR: GThreads not supported!");
+                exit(-1);
+                
+            }
+            
+            if((gt_zmq_server = g_thread_create((GThreadFunc)serv_init_zmq, (void *) zmq_msg, TRUE, &zmq_err)) == NULL) {
+                
+                printf("SEVERE ERROR: Unable to initialize ZMQ Server.");
+                exit(-1);
+                
+            }
+            
+            if((gt_stdio_server = g_thread_create((GThreadFunc)serv_init_stdio, (void *) std_msg, TRUE, &std_err)) == NULL) {
+                
+                printf("SEVERE ERROR: Unable to initialize STDIO Server.");
+                exit(-1);
+                
+            }
+            
+            g_thread_join(gt_zmq_server);
+            g_thread_join(gt_stdio_server);
+            
+            return;
 
         }
+        
     }
+    
 }

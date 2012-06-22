@@ -15,6 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
 
+#include <glib-2.0/glib.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <pwd.h>
@@ -35,13 +36,13 @@
 
 pid_t get_locking_pid() {
 
-    char dirpath[PATH_MAX];
-    char filepath[PATH_MAX];
+    gchar dirpath[PATH_MAX];
+    gchar filepath[PATH_MAX];
 
     snprintf(dirpath, PATH_MAX, "%s/%s", "/etc", P_APP_DIR);
     snprintf(filepath, PATH_MAX, "%s/%s", dirpath, P_LCK_FLE);
 
-    int fd;
+    gint fd;
     struct flock lock;
 
     lock.l_type = F_WRLCK;
@@ -54,7 +55,7 @@ pid_t get_locking_pid() {
 
     if (lock.l_type == F_UNLCK) {
 
-        return (0);
+        return (EXIT_SUCCESS);
 
     }
 
@@ -62,15 +63,15 @@ pid_t get_locking_pid() {
 
 }
 
-P_BOOL lock(pid_t pid) {
+gboolean lock(pid_t pid) {
 
-    char dirpath[PATH_MAX];
-    char filepath[PATH_MAX];
+    gchar dirpath[PATH_MAX];
+    gchar filepath[PATH_MAX];
 
     snprintf(&dirpath[0], PATH_MAX, "%s/%s", "/etc/", P_APP_DIR);
     snprintf(&filepath[0], PATH_MAX, "%s/%s", dirpath, P_LCK_FLE);
 
-    int fd;
+    gint fd;
     struct flock fl;
     fd = open(&filepath[0], O_RDWR);
     if (fd == -1)

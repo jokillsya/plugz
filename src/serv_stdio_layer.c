@@ -28,11 +28,11 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <glib-2.0/glib/gthreadpool.h>
 
 #include "../include/plugz.h"
 #include "../include/plugz_db.h"
 #include "../include/serv_stdio_layer.h"
-#include "../include/thpool.h"
 
 #define BUF_SZE 2048
 //#define HEADER_LEN 4 ->> Don't need this due to new message format...
@@ -41,28 +41,28 @@
 
 void *array_concat(const void *a, size_t an,
         const void *b, size_t bn, size_t s) {
-    char *p = malloc(s * (an + bn));
+    gchar *p = malloc(s * (an + bn));
     memcpy(p, a, an * s);
     memcpy(p + an*s, b, bn * s);
     return p;
 }
 
-int sendall(int s, char *buf, long long *len, P_BOOL prependHeader, int hd_len) {
+gint sendall(gint s, gchar *buf, long long *len, gboolean prependHeader, gint hd_len) {
 
-    char *data;
+    gchar *data;
 
     if (prependHeader) {
 
-        int i;
-        char size_buf[hd_len];
+        gint i;
+        gchar size_buf[hd_len];
 
         for (i = 0; i < hd_len; i++) {
 
-            size_buf[i] = (char) (*len >> (i * 8));
+            size_buf[i] = (gchar) (*len >> (i * 8));
 
         }
 
-        data = ARRAY_CONCAT(char, size_buf, hd_len, buf, *len);
+        data = ARRAY_CONCAT(gchar, size_buf, hd_len, buf, *len);
         *len += hd_len;
 
     } else {
@@ -71,9 +71,9 @@ int sendall(int s, char *buf, long long *len, P_BOOL prependHeader, int hd_len) 
 
     }
 
-    int total = 0; // how many bytes we've sent
-    int bytesleft = *len; // how many we have left to send
-    int n = 0;
+    gint total = 0; // how many bytes we've sent
+    gint bytesleft = *len; // how many we have left to send
+    gint n = 0;
 
     while (total < *len) {
 
@@ -98,7 +98,7 @@ int std_sock_recv_max(int *fd, char **data, uint32_t max) {
 
     *data = malloc((size_t) max);
 
-    int i = 0, r = 0;
+    gint i = 0, r = 0;
 
     do {
 
@@ -126,15 +126,15 @@ int std_sock_recv_max(int *fd, char **data, uint32_t max) {
  * would be a bit of a gamble...
  * 
  */
-int std_sock_recv(int *fd, char **data, int hd_len) {
+gint std_sock_recv(gint *fd, gchar **data, gint hd_len) {
 
-    char *h_buf;
+    gchar *h_buf;
     //Still need to chunk this bit...
-    int recv_cnt = std_sock_recv_max(fd, &h_buf, hd_len);
+    gint recv_cnt = std_sock_recv_max(fd, &h_buf, hd_len);
 
     if (recv_cnt == hd_len) {
 
-        int i;
+        gint i;
         uint32_t msg_size = 0;
 
         for (i = 0; i < hd_len; i++) {
@@ -163,10 +163,10 @@ int std_sock_recv(int *fd, char **data, int hd_len) {
  * @param result
  * @return 
  */
-int tmp_send_tcp_mod(const char *host, int port, char *data, long long d_len, int hd_len, char **result) {
+int tmp_send_tcp_mod(const gchar *host, gint port, gchar *data, long long d_len, gint hd_len, gchar **result) {
 
-    char *r_phd;
-    int p_socket;
+    gchar *r_phd;
+    gint p_socket;
     struct sockaddr_in dest;
 
     p_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -196,11 +196,11 @@ int tmp_send_tcp_mod(const char *host, int port, char *data, long long d_len, in
     
 }
 
-void std_sock_worker(int *fd) {
+void std_sock_worker(gint *fd) {
 
-    char *hd_data;
-    char *data;
-    char *response;
+    gchar *hd_data;
+    gchar *data;
+    gchar *response;
 
     //This is all very theoretical - but here we go...
 
@@ -220,7 +220,7 @@ void std_sock_worker(int *fd) {
     //TODO: Check length errors...
 
     //Get the pre-header bitmap, 9'th byte...
-    char bitmap = hd_data[strlen(hd_data) - 1];
+    gchar bitmap = hd_data[strlen(hd_data) - 1];
 
     /*
      * Here be dragons!
@@ -231,10 +231,10 @@ void std_sock_worker(int *fd) {
      * so 4 + 2 + 1 is max value (7) -- we add one to give us a max of
      * 8 (sizeof(long long)) --> and ignore 0
      */
-    int hd_len = BIT_EXTR(0, 3, bitmap) + 1;
+    gint hd_len = BIT_EXTR(0, 3, bitmap) + 1;
 
     //Copy plug code out of header...
-    char plug_code[8];
+    gchar plug_code[8];
     strncpy(&plug_code[0], hd_data, 8);
     
     plug_t *plug = malloc(sizeof(plug_t));
@@ -265,7 +265,8 @@ void *std_sock_listen() {
     socklen_t addr_size;
     struct addrinfo hints;
     struct addrinfo *res;
-    int sockfd;
+    gint sockfd;
+    GError *err = NULL;
 
     // first, load up address structs with getaddrinfo():
 
@@ -281,8 +282,7 @@ void *std_sock_listen() {
     sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     bind(sockfd, res->ai_addr, res->ai_addrlen);
 
-    thpool_t* threadpool;
-    threadpool = thpool_init(STD_WORK_QUEUE_SIZE);
+    GThreadPool *threadpool = g_thread_pool_new((GFunc)std_sock_worker, "STDIO Thread Pool", STD_WORK_QUEUE_SIZE, FALSE, &err);
 
     while (1) {
 
@@ -291,14 +291,19 @@ void *std_sock_listen() {
         addr_size = sizeof their_addr;
 
         //Block...
-        int new_fd = accept(sockfd, (struct sockaddr *) &their_addr, &addr_size);
+        gint new_fd = accept(sockfd, (struct sockaddr *) &their_addr, &addr_size);
 
         /**
          * Add a fd to the work queue - worker needs to handle it... 
          */
-        thpool_add_work(threadpool, (void*) std_sock_worker, (void*) &new_fd);
+        g_thread_pool_push(threadpool, &new_fd, &err);
+        //thpool_add_work(threadpool, (void*) std_sock_worker, (void*) &new_fd);
 
     }
+    
+    g_thread_pool_free(threadpool, TRUE, FALSE);
+    
+    return EXIT_SUCCESS;
 
 }
 

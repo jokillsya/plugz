@@ -1,3 +1,4 @@
+#include <glib-2.0/glib.h>
 #include <zdb.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,7 +9,7 @@
 static URL_T url;
 static ConnectionPool_T pool;
 
-P_BOOL init_db() {
+gboolean init_db() {
 
     url = URL_new(SQLITE_STR);
     pool = ConnectionPool_new(url);
@@ -40,9 +41,9 @@ P_BOOL init_db() {
 
 }
 
-P_BOOL get_plug(const char *proc_code, plug_t *buffer) {
+gboolean get_plug(const gchar *proc_code, plug_t *buffer) {
     
-    P_BOOL ret = FALSE;
+    gboolean ret = FALSE;
 
     Connection_T con = ConnectionPool_getConnection(pool);
     PreparedStatement_T stmt = Connection_prepareStatement(con, PLUGZ_GET);
@@ -69,9 +70,9 @@ P_BOOL get_plug(const char *proc_code, plug_t *buffer) {
 }
 
 //plug * plug ->> hehehe...
-P_BOOL set_plug(plug_t *plug_t) {
+gboolean set_plug(plug_t *plug_t) {
 
-    P_BOOL r_val;
+    gboolean r_val;
 
     Connection_T con = ConnectionPool_getConnection(pool);
     PreparedStatement_T stmt = Connection_prepareStatement(con, PLUGZ_SET);

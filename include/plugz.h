@@ -26,10 +26,6 @@
 #ifndef PLUGZ_H
 #define	PLUGZ_H
 
-#define P_BOOL          unsigned char
-#define TRUE            (P_BOOL)1
-#define FALSE           (P_BOOL)0
-
 #define EXISTS(path, statstruct)        (stat(path, &statstruct) == 0)
 #define MKDIR(dirpath, mode)            (!(mkdir(dirpath, mode) == -1))
 #define MKFLE(filepath, mode)           (!(creat(filepath, mode) == -1))
@@ -43,9 +39,9 @@
  */
 #define I_B_CALC(type) (sizeof(type) * CHAR_BIT - 1)
 #define B2_POW(x) ((x == 0) ? 1 : 2 << (x - 1))
-#define MIN(x, y) (y + ((x - y) & ((x - y) >> I_B_CALC(x))))
-#define MAX(x, y) (x - ((x - y) & ((x - y) >> I_B_CALC(x))))
-#define BIT_EXTR(bl_1, bl_2, d) ((d & (MAX(B2_POW(bl_1), B2_POW(bl_2)) - MIN(B2_POW(bl_1), B2_POW(bl_2))) >> bl_1))
+#define PL_MIN(x, y) (y + ((x - y) & ((x - y) >> I_B_CALC(x))))
+#define PL_MAX(x, y) (x - ((x - y) & ((x - y) >> I_B_CALC(x))))
+#define BIT_EXTR(bl_1, bl_2, d) ((d & (PL_MAX(B2_POW(bl_1), B2_POW(bl_2)) - PL_MIN(B2_POW(bl_1), B2_POW(bl_2))) >> bl_1))
 
 #endif	/* PLUGZ_H */
 

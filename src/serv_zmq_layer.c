@@ -16,7 +16,7 @@
  */
 
 
-#include <pthread.h>
+#include <glib-2.0/glib.h>
 #include <zmq.h>
 
 #include <stdint.h>
@@ -67,6 +67,8 @@ static void * worker_routine(void *context) {
 }
 
 void *serv_init_zmq(void) {
+    
+    GError *err = NULL;
 
     void *context = zmq_init(1);
 
@@ -80,11 +82,13 @@ void *serv_init_zmq(void) {
     void *workers = zmq_socket(context, ZMQ_DEALER);
     zmq_bind(workers, "inproc://workers");
 
+    GThreadPool *threadpool = g_thread_pool_new((GFunc)worker_routine, "STDIO Thread Pool", ZMQ_WORK_QUEUE_SIZE, FALSE, &err);
     // Launch pool of worker threads
     int thread_nbr;
-    for (thread_nbr = 0; thread_nbr < 5; thread_nbr++) {
-        pthread_t worker;
-        pthread_create(&worker, NULL, worker_routine, context);
+    for (thread_nbr = 0; thread_nbr < ZMQ_WORK_QUEUE_SIZE; thread_nbr++) {
+        
+        g_thread_pool_push(threadpool, context, &err);
+
     }
 
     printf("plugz service started successfully...\n\n");

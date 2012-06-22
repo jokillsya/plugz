@@ -26,6 +26,8 @@
 #ifndef SERV_ZMQ_LAYER_H
 #define	SERV_ZMQ_LAYER_H
 
+#define ZMQ_WORK_QUEUE_SIZE 10
+
 void *serv_init_zmq();
 
 #endif	/* SERV_ZMQ_LAYER_H */

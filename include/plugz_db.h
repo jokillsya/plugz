@@ -45,9 +45,9 @@ typedef struct plug_t {
     int         port;
 } plug_t;
 
-P_BOOL init_db();
-P_BOOL get_plug(const char *proc_code, plug_t *buffer);
-P_BOOL set_plug(plug_t *plug_t);
+gboolean init_db();
+gboolean get_plug(const char *proc_code, plug_t *buffer);
+gboolean set_plug(plug_t *plug_t);
 
 #endif	/* PLUGZ_DB_H */
 
