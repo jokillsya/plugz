@@ -39,8 +39,8 @@
 #define ARRAY_CONCAT(TYPE, A, An, B, Bn) \
   (TYPE *)array_concat((const void *)(A), (An), (const void *)(B), (Bn), sizeof(TYPE));
 
-void *array_concat(const void *a, size_t an,
-        const void *b, size_t bn, size_t s) {
+gpointer array_concat(const gpointer a, size_t an,
+        const gpointer b, size_t bn, size_t s) {
     gchar *p = malloc(s * (an + bn));
     memcpy(p, a, an * s);
     memcpy(p + an*s, b, bn * s);
@@ -259,7 +259,7 @@ void std_sock_worker(gint *fd) {
 
 }
 
-void *std_sock_listen() {
+gpointer std_sock_listen() {
 
     struct sockaddr_storage their_addr;
     socklen_t addr_size;
@@ -307,7 +307,7 @@ void *std_sock_listen() {
 
 }
 
-void *serv_init_stdio(void) {
+gpointer serv_init_stdio(void) {
 
     //Listen for client connections...
     std_sock_listen();

@@ -37,9 +37,9 @@
 
 extern int s_interrupted;
 
-static void * worker_routine(void *context) {
+static gpointer worker_routine(void *context) {
     // Socket to talk to dispatcher
-    void *receiver = zmq_socket(context, ZMQ_REP);
+    gpointer receiver = zmq_socket(context, ZMQ_REP);
     zmq_connect(receiver, "inproc://workers");
 
     while (!s_interrupted) {
@@ -66,20 +66,20 @@ static void * worker_routine(void *context) {
 
 }
 
-void *serv_init_zmq(void) {
+gpointer serv_init_zmq(void) {
     
     GError *err = NULL;
 
-    void *context = zmq_init(1);
+    gpointer context = zmq_init(1);
 
     s_catch_signals();
 
     // Socket to talk to clients
-    void *clients = zmq_socket(context, ZMQ_ROUTER);
+    gpointer clients = zmq_socket(context, ZMQ_ROUTER);
     zmq_bind(clients, "tcp://*:5555");
 
     // Socket to talk to workers
-    void *workers = zmq_socket(context, ZMQ_DEALER);
+    gpointer workers = zmq_socket(context, ZMQ_DEALER);
     zmq_bind(workers, "inproc://workers");
 
     GThreadPool *threadpool = g_thread_pool_new((GFunc)worker_routine, "STDIO Thread Pool", ZMQ_WORK_QUEUE_SIZE, FALSE, &err);

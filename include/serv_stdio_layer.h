@@ -38,7 +38,7 @@ struct sock_data {
 #define STD_PORT                "9820"
 #define STD_WORK_QUEUE_SIZE     100
 
-void *serv_init_stdio();
+gpointer serv_init_stdio();
 
 #endif	/* SERV_STDIO_LAYER_H */
 

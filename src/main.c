@@ -147,7 +147,7 @@ int main(gint argc, gchar **argv) {
     struct arg_str *strs = arg_strn(NULL, NULL, "STRING", 0, 3, "<Module code> <Module location(ipc/tcp)> <port>");
     struct arg_lit *help = arg_lit0(NULL, "help", "print this help and exit");
     struct arg_end *end = arg_end(20);
-    void *argtable[] = {plugz_start_opt, plugz_stop_opt, help, plugs_reg_mod_opt, strs, end};
+    gpointer argtable[] = {plugz_start_opt, plugz_stop_opt, help, plugs_reg_mod_opt, strs, end};
     const char *progname = "plugz";
     int nerrors;
     /* verify the argtable[] entries were allocated sucessfully */

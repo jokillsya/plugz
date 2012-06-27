@@ -99,14 +99,14 @@ void start_server() {
                 
             }
             
-            if((gt_zmq_server = g_thread_create((GThreadFunc)serv_init_zmq, (void *) zmq_msg, TRUE, &zmq_err)) == NULL) {
+            if((gt_zmq_server = g_thread_create((GThreadFunc)serv_init_zmq, (gpointer) zmq_msg, TRUE, &zmq_err)) == NULL) {
                 
                 printf("SEVERE ERROR: Unable to initialize ZMQ Server.");
                 exit(-1);
                 
             }
             
-            if((gt_stdio_server = g_thread_create((GThreadFunc)serv_init_stdio, (void *) std_msg, TRUE, &std_err)) == NULL) {
+            if((gt_stdio_server = g_thread_create((GThreadFunc)serv_init_stdio, (gpointer) std_msg, TRUE, &std_err)) == NULL) {
                 
                 printf("SEVERE ERROR: Unable to initialize STDIO Server.");
                 exit(-1);
