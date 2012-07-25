@@ -19,5 +19,7 @@ PKG_CHECK_MODULES(plugz, [glib-2.0 >= 2.3.0 gthread-2.0])
 LIBS="$LIBS $plugz_LIBS"
 AC_CHECK_HEADERS([locale.h stdlib.h])
 AC_CHECK_FUNCS([setlocale])
-AC_CHECK_LIB([zmq], [zmq_init], [], [AC_MSG_ERROR([zeroMQ missing.])])
+AC_CHECK_LIB([zmq], [zmq_init], [], [AC_MSG_ERROR([The zeroMQ library could not be found, install zeroMQ and try again.])])
+AC_CHECK_LIB([zdb], [ConnectionPool_new], [], [AC_MSG_ERROR([The libzdb library could not be found, install libzdb and try again.])])
+AC_CHECK_LIB([argtable2], [arg_parse], [], [AC_MSG_ERROR([The argtable2 library could not be found, install argtable2 and try again.])])
 AC_OUTPUT
