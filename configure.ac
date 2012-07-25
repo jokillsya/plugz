@@ -19,4 +19,5 @@ PKG_CHECK_MODULES(plugz, [glib-2.0 >= 2.3.0 gthread-2.0])
 LIBS="$LIBS $plugz_LIBS"
 AC_CHECK_HEADERS([locale.h stdlib.h])
 AC_CHECK_FUNCS([setlocale])
+AC_CHECK_LIB([zmq], [zmq_init], [], [AC_MSG_ERROR([zeroMQ missing.])])
 AC_OUTPUT
