@@ -12,11 +12,11 @@ LT_INIT
 AC_ENABLE_STATIC
 AC_ENABLE_SHARED
 AC_PROG_CC
+AC_PROG_CXX
 AM_PROG_CC_C_O
+AC_PROG_LIBTOOL
 PKG_CHECK_MODULES(plugz, [glib-2.0 >= 2.3.0 gthread-2.0])
 LIBS="$LIBS $plugz_LIBS"
-CFLAGS="$CFLAGS -lzmq -lzdb -largtable2 -I../include"
 AC_CHECK_HEADERS([locale.h stdlib.h])
 AC_CHECK_FUNCS([setlocale])
-
 AC_OUTPUT
